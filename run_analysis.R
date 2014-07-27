@@ -10,8 +10,12 @@ x.data <- rbind(x.test, x.train)
 features <- read.table("features.txt")
 colnames(x.data) <- features[[2]]
 
-## Extract only "mean" and "std" measurements from entire data set
-data <- x.data[, grep("mean|std", features[[2]])]
+## Extract "mean" and "std" measurements from entire data set and
+## Delete "meanFreq" measurement from extracted data set
+ind1 <- grep("mean()|std()", features[[2]])
+ind2 <- grep("meanFreq", features[[2]])
+index <- ind1[-which(ind1 %in% ind2)]
+data <- x.data[, index]
 
 ## Read data sets with Activity codes and merge them into one data set
 y.test <- read.table("y_test.txt")
@@ -30,9 +34,8 @@ colnames(data)[1:2] <- c("Act_Lab", "Activity")
 ## Aggregate data to get mean for every variable and every activity
 data <- aggregate(data, list(data$Activity), mean)
 
-## Cleaning data sorting by Activity code and renaming and removing 
-## Cleaning data by transpose function to change dimention 
-## from (6*79) to (79*6)
+## Sort data by Activity code and
+## Transpose data set to change dimention from (6*66) to (66*6)
 data <- data[order(data$Act_Lab),]
 rownames(data) <- data$Group.1; 
 data <- as.data.frame(t(data))
